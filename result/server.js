@@ -24,7 +24,7 @@ io.sockets.on('connection', function (socket) {
 async.retry(
   {times: 1000, interval: 1000},
   function(callback) {
-    pg.connect('postgres://postgres@db/postgres', function(err, client, done) {
+    pg.connect('postgres://postgres@database:5432/postgres', function(err, client, done) { //#AQUI VA LA URL DEL SVC DE DATABASE
       if (err) {
         console.error("Waiting for db");
       }

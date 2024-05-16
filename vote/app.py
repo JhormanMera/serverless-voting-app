@@ -16,7 +16,7 @@ def hello():
 
     if request.method == 'POST':
         vote = request.form['vote']
-        funker.call("process-vote", vote=vote)
+        funker.call("process-vote", vote=vote) #AQUI VA LA URL DEL SVC DE PROCESS-VOTE
 
     resp = make_response(render_template(
         'index.html',
