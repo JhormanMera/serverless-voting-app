@@ -6,7 +6,10 @@ WORKDIR /app
 
 # Install our requirements.txt
 ADD requirements.txt /app/requirements.txt
-RUN pip install -r requirements.txt
+RUN apk add --no-cache postgresql-libs && \
+    apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
+    pip install -r requirements.txt && \
+    apk --purge del .build-deps
 
 # Copy our code from the current folder to /app inside the container
 ADD . /app
