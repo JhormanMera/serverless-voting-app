@@ -5,10 +5,10 @@
 replicaCount: 2
 
 image:
-  repository: camilogonzalez7424/final_project
+  repository: jhormanmera/process-vote
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "process_voteV1"
+  tag: "0.1"
 
 imagePullSecrets: []
 nameOverride: ""

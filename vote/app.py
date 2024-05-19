@@ -1,22 +1,21 @@
 import os
-import random
-import socket
-
 import funker
 from flask import Flask, make_response, render_template, request
 
+# Obtener opciones desde las variables de entorno, con valores por defecto
 option_a = os.getenv('OPTION_A', "Cats")
 option_b = os.getenv('OPTION_B', "Dogs")
 
 app = Flask(__name__)
 
-@app.route("/", methods=['POST','GET'])
+@app.route("/", methods=['POST', 'GET'])
 def hello():
     vote = None
 
     if request.method == 'POST':
         vote = request.form['vote']
-        funker.call("process-vote", vote=vote) #AQUI VA LA URL DEL SVC DE PROCESS-VOTE
+        # Llamar al servicio 'process-vote' usando el nombre DNS correcto en Kubernetes
+        funker.call("process-vote", vote=vote)
 
     resp = make_response(render_template(
         'index.html',

@@ -3,7 +3,7 @@ var pg = require('pg');
 
 function processVote(args) {
   return new Promise((resolve, reject) => {
-    var client = new pg.Client('postgres://postgres@db/postgres');
+    var client = new pg.Client('postgres://postgres:postgres@database.default.svc.cluster.local:5432/postgres');
     client.connect();
     client.query("CREATE TABLE IF NOT EXISTS votes (id SERIAL PRIMARY KEY, vote VARCHAR(255) NOT NULL)")
       .then(() => {
