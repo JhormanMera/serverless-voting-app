@@ -87,7 +87,7 @@ spec:
               def apiImage = docker.build("jhormanmera/vote:${env.BUILD_ID}", "./vote/")
               apiImage.push()
               apiImage.push('latest')
-              def webImage = docker.build("luis486/result:${env.BUILD_ID}", "./result/")
+              def webImage = docker.build("jhormanmera/result:${env.BUILD_ID}", "./result/")
               webImage.push()
               webImage.push('latest')
             }
