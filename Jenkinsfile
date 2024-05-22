@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NAMESPACE = 'target-namespace'
+        NAMESPACE = 'default'
         DOCKER_REGISTRY = 'docker.io/JhormanMera'
         DOCKER_REGISTRY_CREDENTIAL_ID = 'dockerhub'
     }
