@@ -30,7 +30,7 @@ spec:
     - cat
     tty: true
   - name: node
-    image: node:5.11.0-slim
+    image: node:6.12.1-slim
     env:
     - name: "PORT"
       value: "80"
