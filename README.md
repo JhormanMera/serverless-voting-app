@@ -1,6 +1,6 @@
 # <b> **_Aplicación de Votación_** </b>
 
-Esta es una aplicación sin servidor construida con Docker. Lee más en el [repositorio de example-voting-app](https://github.com/bfirsh/funker-example-voting-app)
+Esta es una aplicación sin servidor construida con Docker. Lee más en el [repositorio de example-voting-app](https://github.com/bfirsh/funker-example-voting-app).
 
 **Nota:** Por requerimientos del presente proyecto se modifico el código fuente.
 
@@ -9,18 +9,10 @@ Esta es una aplicación sin servidor construida con Docker. Lee más en el [repo
 Consiste en un servidor de entrada simple que escucha las solicitudes HTTP. Toda la otra funcionalidad de la aplicación se ejecuta bajo demanda como contenedores de Docker para cada solicitud HTTP:
 
 - **_vote_**: La aplicación web de votación, como un contenedor CGI que sirve una única solicitud HTTP.
-- **_process-vote_**: Un contenedor que procesa un voto en segundo plano, ejecutado por la aplicación de votación.
 - **_result_**: La aplicación web de resultados, como un contenedor CGI.
 
 ## <b> _Arquitectura del despliegue_ </b>
 ![arquitectura](/resources/img/arq_image.png)
-
-## <b> _Ejecución_ </b>
-
-Ejecuta en este directorio:
-
-
-
 
 ## <b> _Tecnologías usadas en el desarrollo del proyecto_ </b> 🛠️
 
@@ -29,7 +21,8 @@ Ejecuta en este directorio:
 * Kubernetes
 * Helm
 * Jenkins
-* Elk
+* Github Webhook
+* Ngrook
 * Prometheus
 * Grafana
 
@@ -50,22 +43,56 @@ Principios que seguir:
 
 - Cuando se crean nuevos feature branches, se deben crear con nombres descriptivos. Por ejemplo, feature/add-new-account-type. 
 
+## <b> _Ejecución_ </b>
+
+Ejecuta en el directorio raiz del proyecto:
+
+### Despliegue de la Aplicación
+
+
 #### Para ejecutar los microservicios con docker
 
 - Es necesario tener ````docker y docker compose```` instalado en el sistema
 - Dentro de la carpeta principal, ejecutar el comando ````docker-compose up -d```` para levantar todos los servicios al mismo tiempo 
 
-## <b> _Para ejecutar los microservicios con kubernetes_ </B>
+#### Para ejecutar los microservicios con kubernetes
 
-  
+Se deben ejecutar los siguientes comandos para levantar los servicios en el cluster haciendo uso de helm:
 
+```bash
+helm install vote ./charts/vote
+helm install result ./charts/result
+helm install database ./charts/database
+```
+Para instalar jenkins en el cluster se hace uso de los siguientes comandos:
+
+```bash 
+kubectl apply -f ./jenkins/jenkins-ns.yaml
+kubectl apply -f ./jenkins/jenkins-pv.yaml
+kubectl apply -f ./jenkins/jenkins-pvc.yaml
+helm repo add jenkins https://charts.jenkins.io
+helm repo update
+helm install jenkins --namespace jenkins --values values.yaml jenkins/jenkins 
+```
+Para obtener la contraseña por defecto del usuario `admin` de jenkins ejecuta:
+
+```bash
+  kubectl exec --namespace jenkins -it svc/jenkins -c jenkins -- /bin/cat /run/secrets/additional/chart-admin-password && echo
+```
+
+Se debe otorgar acceso a la cuenta por defecto que crea jenkins para poder hacer uso del pipeline de la app:
+
+```bash
+kubectl create clusterrolebinding permissive-binding --clusterrole=cluster-admin --user=admin --user=kubelet --group=system:serviceaccounts
+```
+
+Este comando crea un `ClusterRoleBinding` que otorga permisos de administrador de clúster a los usuarios `admin` y `kubelet`, así como al grupo `system:serviceaccounts`.
 
 ## <b> _Por:_ </b>
 <b> 😊😊 _**Ing. DevOps:**_ 😊😊 </b>
 
 + [Camilo González Velasco](https://github.com/camilogonzalez7424 "Camilo G.")
 + [Jhorman Mera](https://github.com/JhormanMera "Jhorman M.")
-
 
 <br>
 
