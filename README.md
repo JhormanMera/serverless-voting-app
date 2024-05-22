@@ -13,7 +13,8 @@ Consiste en un servidor de entrada simple que escucha las solicitudes HTTP. Toda
 - **_result_**: La aplicación web de resultados, como un contenedor CGI.
 
 ## <b> _Arquitectura del despliegue_ </b>
-![arquitectura](/resources/img/arq_image.png)
+
+![Arquitectura](img/arquitectura.png)
 
 ## <b> _Ejecución_ </b>
 
