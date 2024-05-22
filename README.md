@@ -16,6 +16,10 @@ Consiste en un servidor de entrada simple que escucha las solicitudes HTTP. Toda
 
 ![Arquitectura](img/arquitectura.png)
 
+## <b> _Flujo CI/CD_ </b>
+
+![Diagrama](img/pipeline.png)
+
 ## <b> _Ejecución_ </b>
 
 Ejecuta en este directorio:
