@@ -122,13 +122,13 @@ pipeline {
                         
                         dir("charts/${chart}") {
                             // Helm upgrade/install command
-                            sh """
+                            sh '''
                             kubectl config set-credentials jenkins-sa --token="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
                             kubectl config set-context jenkins-context --cluster=kubernetes --user=jenkins-sa
                             kubectl config use-context jenkins-context
-                            
+
                             helm upgrade --install ${chart} . --namespace ${NAMESPACE} --set image.repository=${DOCKER_REGISTRY}/${chart} --set image.tag=${env.BUILD_ID}
-                            """
+                            '''
                         }
                     }
                 }
