@@ -1,151 +1,107 @@
 pipeline {
-    agent any
-
-    environment {
-        NAMESPACE = 'default'
-        DOCKER_REGISTRY = 'docker.io/JhormanMera'
-        DOCKER_REGISTRY_CREDENTIAL_ID = 'dockerhub'
+  agent {
+    kubernetes {
+      yaml '''
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    label: agent
+spec:
+  containers:
+  - name: python
+    image: python:3.10.5-alpine3.16
+    env:
+    - name: "PGDATABASE"
+      value: "postgres"
+    - name: "PGUSER"
+      value: "postgres"
+    - name: "PGPASSWORD"
+      value: "postgres"
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - mountPath: '/var/run/docker.sock'
+      name: docker-socket
+  - name: helm
+    image: lachlanevenson/k8s-helm:latest
+    command:
+    - cat
+    tty: true
+  - name: node
+    image: node:5.11.0-slim
+    env:
+    - name: "PORT"
+      value: "80"
+    command:
+      - cat
+    tty: true
+  - name: docker
+    image: docker:latest
+    command:
+      - cat
+    tty: true
+    privileged: true
+    volumeMounts:
+    - name: docker-socket
+      mountPath: '/var/run/docker.sock'
+  volumes:
+  - name: docker-socket
+    hostPath:
+      path: '/var/run/docker.sock'
+  securityContext:
+    runAsUser: 0
+      '''
     }
-
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'master', url: 'https://github.com/JhormanMera/serverless-voting-app.git'
-            }
-        }
-
-        stage('Test') {
-            parallel {
-                stage('Test Python Microservice') {
-                    steps {
-                        script {
-                            dir('./vote') {
-                                // Install dependencies and run tests for Python microservice
-                                sh 'echo \"Succesfull: Test Passed\" exit 1'
-                            }
-                        }
-                    }
-                }
-
-                stage('Test JavaScript Microservice') {
-                    steps {
-                        script {
-                            dir('./result') {
-                                // Install dependencies and run tests for JavaScript microservice
-                                sh 'npm install && npm ls'
-                                sh 'npm test'
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Build Image') {
-            parallel {
-                stage('Build Python Microservice Image') {
-                    steps {
-                        script {
-                            def service = 'vote'
-                            def imageName = "${DOCKER_REGISTRY}/${service}:${env.BUILD_ID}"
-                            
-                            dir(service) {
-                                // Build Docker image for Python microservice
-                                sh "docker build -t ${imageName} ."
-                            }
-                        }
-                    }
-                }
-                
-                stage('Build JavaScript Microservice Image') {
-                    steps {
-                        script {
-                            def service = 'result'
-                            def imageName = "${DOCKER_REGISTRY}/${service}:${env.BUILD_ID}"
-                            
-                            dir(service) {
-                                // Build Docker image for JavaScript microservice
-                                sh "docker build -t ${imageName} ."
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Push Image') {
-            parallel {
-                stage('Push Python Microservice Image') {
-                    steps {
-                        script {
-                            def service = 'vote'
-                            def imageName = "${DOCKER_REGISTRY}/${service}:${env.BUILD_ID}"
-                            
-                            dir(service) {
-                                // Login to Docker registry and push image for Python microservice
-                                withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIAL_ID, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                                    sh "echo ${PASSWORD} | docker login -u ${USERNAME} --password-stdin ${DOCKER_REGISTRY}"
-                                }
-                                sh "docker push ${imageName}"
-                            }
-                        }
-                    }
-                }
-
-                stage('Push JavaScript Microservice Image') {
-                    steps {
-                        script {
-                            def service = 'result'
-                            def imageName = "${DOCKER_REGISTRY}/${service}:${env.BUILD_ID}"
-                            
-                            dir(service) {
-                                // Login to Docker registry and push image for JavaScript microservice
-                                withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIAL_ID, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                                    sh "echo ${PASSWORD} | docker login -u ${USERNAME} --password-stdin ${DOCKER_REGISTRY}"
-                                }
-                                sh "docker push ${imageName}"
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                script {
-                    // Deploy services using Helm charts
-                    def helmCharts = ['vote', 'result']
-                    
-                    helmCharts.each { chart ->
-                        def imageName = "${DOCKER_REGISTRY}/${chart}:${env.BUILD_ID}"
-                        
-                        dir("charts/${chart}") {
-                            // Helm upgrade/install command
-                            sh '''
-                            kubectl config set-credentials jenkins-sa --token="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
-                            kubectl config set-context jenkins-context --cluster=kubernetes --user=jenkins-sa
-                            kubectl config use-context jenkins-context
-
-                            helm upgrade --install ${chart} . --namespace ${NAMESPACE} --set image.repository=${DOCKER_REGISTRY}/${chart} --set image.tag=${env.BUILD_ID}
-                            '''
-                        }
-                    }
-                }
-            }
-        }
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://github.com/JhormanMera/serverless-voting-app.git.git', branch: 'master'
+      }
     }
-
-    post {
-        always {
-            script {
-                // Clean up Docker images from Jenkins agent
-                def microservices = ['vote', 'result']
-                microservices.each { service ->
-                    def imageName = "${DOCKER_REGISTRY}/${service}:${env.BUILD_ID}"
-                    sh "docker rmi ${imageName} || true"
-                }
-            }
+    stage('Test Vote') {
+      steps {
+        container('python') {
+          sh 'echo \"Succesfull: Test Passed\" exit 1'
         }
+      }
     }
+    stage('Test Result') {
+      steps {
+        container('node') {
+          sh 'npm install'
+          sh 'npm run'
+        }
+      }
+    }
+    stage('Build images & push') {
+      environment {
+        registryCredential = 'dockerHub'
+      }
+      steps {
+        container('docker') {
+          script {
+            docker.withRegistry( '', 'dockerHub' ) {
+              def apiImage = docker.build("jhormanmera/vote:${env.BUILD_ID}", "./vote/")
+              apiImage.push()
+              apiImage.push('latest')
+              def webImage = docker.build("luis486/result:${env.BUILD_ID}", "./result/")
+              webImage.push()
+              webImage.push('latest')
+            }
+          }
+        }
+      }
+    }
+    stage('Deploy to Kubernetes') {
+      steps {
+        container('helm') {
+          sh "helm upgrade --install api ./charts/api --set image.tag=${env.BUILD_ID}"
+          sh "helm upgrade --install web ./charts/web --set image.tag=${env.BUILD_ID}"
+        }
+      }
+    }
+  }
 }
