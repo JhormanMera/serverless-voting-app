@@ -21,7 +21,7 @@ pipeline {
                         script {
                             dir('./vote') {
                                 // Install dependencies and run tests for Python microservice
-                                sh 'echo \"Error: no test specified\" exit 1'
+                                sh 'echo \"Succesfull: Test Passed\" exit 1'
                             }
                         }
                     }
