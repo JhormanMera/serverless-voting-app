@@ -11,6 +11,10 @@ Consiste en un servidor de entrada simple que escucha las solicitudes HTTP. Toda
 - **_vote_**: La aplicación web de votación, como un contenedor CGI que sirve una única solicitud HTTP.
 - **_result_**: La aplicación web de resultados, como un contenedor CGI.
 
+### ¿Que es Serverless?
+
+La arquitectura serverless (sin servidor) es un modelo de computación en la nube donde los desarrolladores pueden ejecutar código sin tener que gestionar la infraestructura subyacente. En lugar de preocuparse por servidores físicos o virtuales, los desarrolladores simplemente suben su código a un proveedor de servicios en la nube (como AWS Lambda, Azure Functions o Google Cloud Functions) y el proveedor se encarga de todo lo demás.
+
 ## <b> _Arquitectura del despliegue_ </b>
 
 ![Arquitectura](img/arquitectura.png)
@@ -81,13 +85,21 @@ Para obtener la contraseña por defecto del usuario `admin` de jenkins ejecuta:
   kubectl exec --namespace jenkins -it svc/jenkins -c jenkins -- /bin/cat /run/secrets/additional/chart-admin-password && echo
 ```
 
-Se debe otorgar acceso a la cuenta por defecto que crea jenkins para poder hacer uso del pipeline de la app:
+Se debe otorgar acceso a la cuenta por defecto que crea jenkins para poder hacer uso del pipeline de la app. Este comando crea un `ClusterRoleBinding` que otorga permisos de administrador de clúster a los usuarios `admin` y `kubelet`, así como al grupo `system:serviceaccounts`:
 
 ```bash
 kubectl create clusterrolebinding permissive-binding --clusterrole=cluster-admin --user=admin --user=kubelet --group=system:serviceaccounts
 ```
 
-Este comando crea un `ClusterRoleBinding` que otorga permisos de administrador de clúster a los usuarios `admin` y `kubelet`, así como al grupo `system:serviceaccounts`.
+
+Para desplegar prometheus y grafana para monitorear los pods del cluster se debe ejecutar:
+
+```bash
+chmod +x ./monitoring/deploy_prometheus_grafana.sh
+./monitoring/deploy_prometheus_grafana.sh 
+```
+
+
 
 ## <b> _Por:_ </b>
 <b> 😊😊 _**Ing. DevOps:**_ 😊😊 </b>
