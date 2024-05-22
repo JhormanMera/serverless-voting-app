@@ -32,7 +32,7 @@ pipeline {
                         script {
                             dir('./result') {
                                 // Install dependencies and run tests for JavaScript microservice
-                                sh 'npm install'
+                                sh 'npm install && npm ls'
                                 sh 'npm test'
                             }
                         }
