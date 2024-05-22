@@ -78,12 +78,12 @@ spec:
     }
     stage('Build images & push') {
       environment {
-        registryCredential = 'dockerHub'
+        registryCredential = 'dockerhub'
       }
       steps {
         container('docker') {
           script {
-            docker.withRegistry( '', 'dockerHub' ) {
+            docker.withRegistry( '', 'dockerhub' ) {
               def apiImage = docker.build("jhormanmera/vote:${env.BUILD_ID}", "./vote/")
               apiImage.push()
               apiImage.push('latest')
@@ -98,8 +98,8 @@ spec:
     stage('Deploy to Kubernetes') {
       steps {
         container('helm') {
-          sh "helm upgrade --install api ./charts/api --set image.tag=${env.BUILD_ID}"
-          sh "helm upgrade --install web ./charts/web --set image.tag=${env.BUILD_ID}"
+          sh "helm upgrade --install vote ./charts/vote --set image.tag=${env.BUILD_ID}"
+          sh "helm upgrade --install result ./charts/result --set image.tag=${env.BUILD_ID}"
         }
       }
     }
