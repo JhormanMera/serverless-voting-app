@@ -58,7 +58,7 @@ spec:
   stages {
     stage('Checkout') {
       steps {
-        git url: 'https://github.com/JhormanMera/serverless-voting-app.git.git', branch: 'master'
+        git url: 'https://github.com/JhormanMera/serverless-voting-app.git', branch: 'master'
       }
     }
     stage('Test Vote') {
