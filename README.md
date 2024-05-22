@@ -1,6 +1,6 @@
 # <b> **_Aplicación de Votación_** </b>
 
-Esta es una aplicación sin servidor construida con Docker. Lee más en el [repositorio de example-voting-app](https://github.com/bfirsh/funker-example-voting-app).
+Esta es una aplicación sin servidor construida con Docker. Lee más en el [repositorio de example-voting-app](https://github.com/bfirsh/funker-example-voting-app)
 
 **Nota:** Por requerimientos del presente proyecto se modifico el código fuente.
 
