@@ -1,0 +1,32 @@
+controller:
+  servicePort: 8080
+  serviceType: NodePort
+  podSecurityContextOverride:
+    runAsNonRoot: false
+    runAsUser: 0
+  scriptApproval:
+    - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
+    - "new groovy.json.JsonSlurperClassic"
+    - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods leftShift java.util.Map java.util.Map"
+    - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods split java.lang.String"
+  installPlugins:
+    - kubernetes:4029.v5712230ccb_f8
+    - workflow-aggregator:596.v8c21c963d92d
+    - git:5.1.0
+    - configuration-as-code:1775.v810dc950b_514
+agent:
+  volumes:
+    - type: HostPath
+      hostPath: /var/run/docker.sock
+      mountPath: /var/run/docker.sock
+
+persistence:
+  enabled: true
+  existingClaim: jenkins-pvc
+
+networkPolicy:
+  enabled: false
+  apiVersion: networking.k8s.io/v1
+
+rbac:
+  create: true

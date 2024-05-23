@@ -19,6 +19,10 @@ La arquitectura serverless (sin servidor) es un modelo de computación en la nub
 
 ![Arquitectura](img/arquitectura.png)
 
+## <b> _Flujo CI/CD_ </b>
+
+![Diagrama](img/pipeline.png)
+
 ## <b> _Tecnologías usadas en el desarrollo del proyecto_ </b> 🛠️
 
 * Docker
